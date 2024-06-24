@@ -9,7 +9,7 @@ import (
 
 var DB *gorm.DB
 
-func Databseinit() {
+func Databaseinit() {
 	var err error
 	const MYSQL = "root:@tcp(127.0.0.1:3306)/warehouse?charset=utf8mb4&parseTime=True&loc=Local"
 	dsn := MYSQL
