@@ -1,17 +1,13 @@
 package main
 
 import (
+	"GDSC-PROJECT/database"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
+	database.Databseinit()
 	app := fiber.New()
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"Hello": "world",
-		})
-	})
-
-	app.Listen(":3000")
+	app.Listen(":8080")
 }
