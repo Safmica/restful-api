@@ -7,7 +7,7 @@ import (
 )
 
 func DBMigration() {
-	err := DB.AutoMigrate(&entity.Product{}, &entity.Category{}, &entity.Stock{}, &entity.Category{})
+	err := DB.AutoMigrate(&entity.Product{}, &entity.Category{}, &entity.Stock{}, &entity.Warehouse{})
 	if err != nil {
 		log.Println(err)
 	}

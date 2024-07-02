@@ -1,13 +1,31 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Stock struct {
-	gorm.Model
-	ID          uint      `json:"id" gorm:"primaryKey"`
-	ProductID   uint      `json:"product_id"`
-	WarehouseID uint      `json:"warehouse_id"`
-	Quantity    int       `json:"quantity"`
-	Product     Product   `gorm:"foreignKey:ProductID"`
-	Warehouse   Warehouse `gorm:"foreignKey:WarehouseID"`
+	ID          uint                 `json:"id" gorm:"primaryKey"`
+	ProductID   uint                 `json:"product_id"`
+	Product     ProductResponseStock `json:"product" gorm:"foreignKey:ProductID"`
+	WarehouseID uint                 `json:"warehouse_id"`
+	Warehouse   WarehouseResponse    `json:"warehouse" gorm:"foreignKey:WarehouseID"`
+	Quantity    int                  `json:"quantity"`
+	CreatedAt   time.Time            `json:"-"`
+	UpdatedAt   time.Time            `json:"-"`
+	DeletedAt   gorm.DeletedAt       `json:"-"`
+}
+
+type StockResponse struct {
+	ID          uint                 `json:"-" gorm:"primaryKey"`
+	WarehouseID uint                 `json:"-"`
+	ProductID   uint                 `json:"-"`
+	Product     ProductResponseStock `json:"product" gorm:"foreignKey:ProductID"`
+	Quantity    int                  `json:"quantity"`
+}
+
+func (StockResponse) TableName() string {
+	return "stocks"
 }
