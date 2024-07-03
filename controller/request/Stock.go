@@ -4,9 +4,12 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
+	"errors"
 	"log"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func GetAllStock(ctx *fiber.Ctx) error {
@@ -23,6 +26,37 @@ func GetAllStock(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"stocks": stocks,
+	})
+}
+
+func GetStockByID(ctx *fiber.Ctx) error {
+	idParam := ctx.Params("id")
+
+	stockID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil || stockID == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid stock ID",
+		})
+	}
+
+	var stock entity.Stock
+	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").First(&stock, stockID)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "stock not found",
+		})
+	}
+
+	if result.Error != nil {
+		log.Println(result.Error)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch stock",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"stock": stock,
 	})
 }
 

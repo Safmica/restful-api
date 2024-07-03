@@ -4,9 +4,12 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
+	"errors"
 	"log"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func GetAllWarehouse(ctx *fiber.Ctx) error {
@@ -23,6 +26,37 @@ func GetAllWarehouse(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"warehouses": warehouses,
+	})
+}
+
+func GetWarehouseByID(ctx *fiber.Ctx) error {
+	idParam := ctx.Params("id")
+
+	warehouseID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil || warehouseID == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid warehouse ID",
+		})
+	}
+
+	var warehouse entity.Warehouse
+	result := database.DB.Preload("Stocks").Preload("Stocks.Product").Preload("Stocks.Product.Category").First(&warehouse, warehouseID)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Warehouse not found",
+		})
+	}
+
+	if result.Error != nil {
+		log.Println(result.Error)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch warehouse",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"warehouse": warehouse,
 	})
 }
 
