@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"GDSC-PROJECT/controller"
+	controller "GDSC-PROJECT/controller/request"
 
 	"github.com/gofiber/fiber/v2"
 )

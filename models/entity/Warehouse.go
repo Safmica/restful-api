@@ -11,7 +11,7 @@ type Warehouse struct {
 	Name      string          `json:"name"`
 	Location  string          `json:"location"`
 	Capacity  int             `json:"capacity"`
-	Stocks    []StockResponse `json:"stocks" gorm:"foreignKey:WarehouseID"`
+	Stocks    []StockResponse `json:"stocks,omitempty" gorm:"foreignKey:WarehouseID"`
 	CreatedAt time.Time       `json:"-"`
 	UpdatedAt time.Time       `json:"-"`
 	DeletedAt gorm.DeletedAt  `json:"-"`
@@ -19,8 +19,8 @@ type Warehouse struct {
 
 type WarehouseResponse struct {
 	ID       uint   `json:"-" gorm:"primaryKey"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
+	Name     string `json:"name,omitempty"`
+	Location string `json:"location,omitempty"`
 }
 
 /*

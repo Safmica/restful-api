@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
 	"log"
@@ -31,6 +32,12 @@ func CreateProduct(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(product); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.ProductValidation(product); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 

@@ -9,9 +9,9 @@ import (
 type Stock struct {
 	ID          uint                 `json:"id" gorm:"primaryKey"`
 	ProductID   uint                 `json:"product_id"`
-	Product     ProductResponseStock `json:"product" gorm:"foreignKey:ProductID"`
+	Product     ProductResponseStock `json:"product,omitempty" gorm:"foreignKey:ProductID"`
 	WarehouseID uint                 `json:"warehouse_id"`
-	Warehouse   WarehouseResponse    `json:"warehouse" gorm:"foreignKey:WarehouseID"`
+	Warehouse   WarehouseResponse    `json:"warehouse,omitempty" gorm:"foreignKey:WarehouseID"`
 	Quantity    int                  `json:"quantity"`
 	CreatedAt   time.Time            `json:"-"`
 	UpdatedAt   time.Time            `json:"-"`
