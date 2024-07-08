@@ -35,7 +35,7 @@ func GetWarehouseByID(ctx *fiber.Ctx) error {
 	warehouseID, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || warehouseID == 0 {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid warehouse ID",
+			"error": "Invalid warehouse_id",
 		})
 	}
 
@@ -57,6 +57,37 @@ func GetWarehouseByID(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"warehouse": warehouse,
+	})
+}
+
+func GetWarehouseByProductID(ctx *fiber.Ctx) error {
+	idParam := ctx.Params("product_id")
+
+	productID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil || productID == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product_id",
+		})
+	}
+
+	var warehouses []entity.Warehouse
+	result := database.DB.Preload("Stocks").Preload("Stocks.Product").Preload("Stocks.Product.Category").Joins("JOIN product_warehouses ON warehouses.id = product_warehouses.warehouse_id").Where("product_id = ?", productID).Find(&warehouses)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Warehouse not found",
+		})
+	}
+
+	if result.Error != nil {
+		log.Println(result.Error)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch warehouse",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"warehouses": warehouses,
 	})
 }
 

@@ -35,12 +35,43 @@ func GetCategoryByID(ctx *fiber.Ctx) error {
 	categoryID, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || categoryID == 0 {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category ID",
+			"error": "Invalid category_id",
 		})
 	}
 
 	var category entity.Category
 	result := database.DB.Preload("Products").First(&category, categoryID)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "category not found",
+		})
+	}
+
+	if result.Error != nil {
+		log.Println(result.Error)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch category",
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"category": category,
+	})
+}
+
+func GetCategoryByProductID(ctx *fiber.Ctx) error {
+	idParam := ctx.Params("product_id")
+
+	productID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil || productID == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product_id",
+		})
+	}
+
+	var category entity.CategoryResponse
+	result := database.DB.Debug().Joins("JOIN products ON categories.id = products.category_id").Where("products.id = ?", productID).First(&category)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
