@@ -4,23 +4,17 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
-	"errors"
-	"log"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 func GetAllProduct(ctx *fiber.Ctx) error {
 	var products []entity.Product
 
 	result := database.DB.Preload("Warehouses").Preload("Category").Find(&products)
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch products",
+	if err := validation.QueryResultValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -30,28 +24,18 @@ func GetAllProduct(ctx *fiber.Ctx) error {
 }
 
 func GetProductByID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
-
-	productID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || productID == 0 {
+	productID, err := validation.ParseAndIDValidation(ctx, "id", "product")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid product_id",
+			"error": err.Error(),
 		})
 	}
 
 	var product entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").First(&product, productID)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "product not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch product",
+	if err = validation.EntityByIDValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -61,28 +45,18 @@ func GetProductByID(ctx *fiber.Ctx) error {
 }
 
 func GetProductByCategoryID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("category_id")
-
-	categoryID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || categoryID == 0 {
+	categoryID, err := validation.ParseAndIDValidation(ctx, "category_id", "category")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category_id",
+			"error": err.Error(),
 		})
 	}
 
 	var products []entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").Where("category_id = ?", categoryID).Find(&products)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "product not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch product",
+	if err = validation.EntityByIDValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -92,28 +66,18 @@ func GetProductByCategoryID(ctx *fiber.Ctx) error {
 }
 
 func GetProductByWarehouseID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("warehouse_id")
-
-	warehouseID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || warehouseID == 0 {
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "warehouse_id", "warehouse")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid warehouse_id",
+			"error": err.Error(),
 		})
 	}
 
 	var products []entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").Joins("JOIN product_warehouses ON products.id = product_warehouses.product_id").Where("warehouse_id = ?", warehouseID).Find(&products)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "product not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch product",
+	if err = validation.EntityByIDValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 

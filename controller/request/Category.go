@@ -4,23 +4,17 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
-	"errors"
-	"log"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 func GetAllCategory(ctx *fiber.Ctx) error {
 	var categories []entity.Category
 
 	result := database.DB.Preload("Products").Find(&categories)
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch categories",
+	if err := validation.QueryResultValidation(result, "category"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -30,28 +24,18 @@ func GetAllCategory(ctx *fiber.Ctx) error {
 }
 
 func GetCategoryByID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
-
-	categoryID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || categoryID == 0 {
+	categoryID, err := validation.ParseAndIDValidation(ctx, "id", "category")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category_id",
+			"error": err.Error(),
 		})
 	}
 
 	var category entity.Category
 	result := database.DB.Preload("Products").First(&category, categoryID)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "category not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch category",
+	if err = validation.EntityByIDValidation(result, "category"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -61,28 +45,18 @@ func GetCategoryByID(ctx *fiber.Ctx) error {
 }
 
 func GetCategoryByProductID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("product_id")
-
-	productID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || productID == 0 {
+	productID, err := validation.ParseAndIDValidation(ctx, "product_id", "product")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid product_id",
+			"error": err.Error(),
 		})
 	}
 
 	var category entity.CategoryResponse
 	result := database.DB.Debug().Joins("JOIN products ON categories.id = products.category_id").Where("products.id = ?", productID).First(&category)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "category not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch category",
+	if err = validation.EntityByIDValidation(result, "category"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 

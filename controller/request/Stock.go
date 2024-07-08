@@ -4,23 +4,17 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
-	"errors"
-	"log"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 func GetAllStock(ctx *fiber.Ctx) error {
 	var stocks []entity.Stock
 
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Find(&stocks)
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch stocks",
+	if err := validation.QueryResultValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -30,28 +24,18 @@ func GetAllStock(ctx *fiber.Ctx) error {
 }
 
 func GetStockByID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
-
-	stockID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || stockID == 0 {
+	stockID, err := validation.ParseAndIDValidation(ctx, "id", "stock")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid stock ID",
+			"error": err.Error(),
 		})
 	}
 
 	var stock entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").First(&stock, stockID)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "stock not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch stock",
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -61,28 +45,18 @@ func GetStockByID(ctx *fiber.Ctx) error {
 }
 
 func GetStockByProductID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("product_id")
-
-	productID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || productID == 0 {
+	productID, err := validation.ParseAndIDValidation(ctx, "product_id", "product")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid product_id",
+			"error": err.Error(),
 		})
 	}
 
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("product_id = ?", productID).Find(&stocks)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "stock not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch stock",
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -91,28 +65,18 @@ func GetStockByProductID(ctx *fiber.Ctx) error {
 	})
 }
 func GetStockByWarehouseID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("warehouse_id")
-
-	warehouseID, err := strconv.ParseUint(idParam, 10, 64)
-	if err != nil || warehouseID == 0 {
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "warehouse_id", "warehouse")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid warehouse_id",
+			"error": err.Error(),
 		})
 	}
 
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("warehouse_id = ?", warehouseID).Find(&stocks)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "stock not found",
-		})
-	}
-
-	if result.Error != nil {
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch stock",
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
@@ -122,35 +86,25 @@ func GetStockByWarehouseID(ctx *fiber.Ctx) error {
 }
 
 func GetStockByWarehouseIDProductID(ctx *fiber.Ctx) error {
-	idWarehouseParam := ctx.Params("warehouse_id")
-	idProductParam := ctx.Params("product_id")
-
-	warehouseID, err := strconv.ParseUint(idWarehouseParam, 10, 64)
-	if err != nil || warehouseID == 0 {
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "warehouse_id", "warehouse")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid warehouse_id",
+			"error": err.Error(),
 		})
 	}
 
-	productID, err := strconv.ParseUint(idProductParam, 10, 64)
-	if err != nil || productID == 0 {
+	productID, err := validation.ParseAndIDValidation(ctx, "product_id", "product")
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid product_id",
+			"error": err.Error(),
 		})
 	}
 
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("warehouse_id = ? AND product_id = ?", warehouseID, productID).Find(&stocks)
-
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"error": "stock not found",
-			})
-		}
-		log.Println(result.Error)
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch stock",
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
