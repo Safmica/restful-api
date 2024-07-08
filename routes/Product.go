@@ -7,7 +7,7 @@ import (
 )
 
 func ProductRoutes(app *fiber.App) {
-	app.Get("/product", controller.GetAllProduct)
-	app.Get("/product/:id", controller.GetProductByID)
-	app.Post("/product", controller.CreateProduct)
+	app.Get("/products", controller.GetAllProduct)
+	app.Get("/products/:id", controller.GetProductByID)
+	app.Post("/products", controller.CreateProduct)
 }

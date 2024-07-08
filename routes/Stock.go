@@ -7,7 +7,7 @@ import (
 )
 
 func StockRoutes(app *fiber.App) {
-	app.Get("/stock", controller.GetAllStock)
-	app.Get("/stock/:id", controller.GetStockByID)
-	app.Post("/stock", controller.CreateStock)
+	app.Get("/stocks", controller.GetAllStock)
+	app.Get("/stocks/:id", controller.GetStockByID)
+	app.Post("/stocks", controller.CreateStock)
 }
