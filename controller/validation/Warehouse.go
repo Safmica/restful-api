@@ -36,3 +36,53 @@ func WarehouseValidation(warehouse *entity.Warehouse) error {
 
 	return nil
 }
+
+func WarehouseUpdateValidation(requestWarehouse *entity.WarehouseResponse, warehouse *entity.Warehouse) error {
+	var count int64
+
+	if requestWarehouse.ID != 0 {
+		return errors.New("id is not allowed to be input")
+	}
+
+	if requestWarehouse.Name != "" && requestWarehouse.Location != "" {
+		count = 0
+		database.DB.Model(&entity.Warehouse{}).Where("name = ? AND location = ?", requestWarehouse.Name, requestWarehouse.Location).Count(&count)
+		if count > 0 {
+			return errors.New("warehouse with the same name and location already exists")
+		}
+		warehouse.Name = requestWarehouse.Name
+		warehouse.Location = requestWarehouse.Location
+	} else {
+		if requestWarehouse.Name != "" {
+			count = 0
+			if err := database.DB.Model(&entity.Warehouse{}).
+				Where("name = ? AND location = ?", requestWarehouse.Name, warehouse.Location).
+				Count(&count).Error; err != nil {
+				return err
+			}
+			if count > 0 {
+				return errors.New("warehouse with the same name and location already exists")
+			}
+			warehouse.Name = requestWarehouse.Name
+		}
+
+		if requestWarehouse.Location != "" {
+			count = 0
+			if err := database.DB.Model(&entity.Warehouse{}).
+				Where("name = ? AND location = ?", warehouse.Name, requestWarehouse.Location).
+				Count(&count).Error; err != nil {
+				return err
+			}
+			if count > 0 {
+				return errors.New("warehouse with the same name and location already exists")
+			}
+			warehouse.Location = requestWarehouse.Location
+		}
+	}
+
+	if requestWarehouse.Capacity > 0 {
+		warehouse.Capacity = requestWarehouse.Capacity
+	}
+
+	return nil
+}

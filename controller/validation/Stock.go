@@ -48,3 +48,15 @@ func StockValidation(stock *entity.Stock) error {
 
 	return nil
 }
+
+func StockUpdateValidation(requestStock *entity.StockResponse, Stock *entity.Stock) error {
+	if requestStock.ID != 0 {
+		return errors.New("id is not allowed to be input")
+	}
+
+	if requestStock.Quantity > 0 {
+		Stock.Quantity = requestStock.Quantity
+	}
+
+	return nil
+}

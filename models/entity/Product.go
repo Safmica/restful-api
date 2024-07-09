@@ -21,7 +21,7 @@ type Product struct {
 	DeletedAt   gorm.DeletedAt      `json:"-"`
 }
 
-type ProductResponseStock struct {
+type ProductResponse struct {
 	ID          uint             `json:"-" gorm:"primaryKey"`
 	Name        string           `json:"name,omitempty"`
 	Description string           `json:"description,omitempty"`
@@ -38,7 +38,7 @@ type ProductResponseCategory struct {
 	CategoryID  uint    `json:"-"`
 }
 
-func (ProductResponseStock) TableName() string {
+func (ProductResponse) TableName() string {
 	return "products"
 }
 

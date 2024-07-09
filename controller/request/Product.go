@@ -115,3 +115,46 @@ func CreateProduct(ctx *fiber.Ctx) error {
 		"product": product,
 	})
 }
+
+func UpdateProduct(ctx *fiber.Ctx) error {
+	requestProduct := new(entity.ProductResponse)
+	product := new(entity.Product)
+
+	productID, err := validation.ParseAndIDValidation(ctx, "id", "product")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&product, productID)
+	if err = validation.EntityByIDValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := ctx.BodyParser(requestProduct); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.ProductUpdateValidation(requestProduct, product); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Save(&product).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "updated successfully",
+		"product": product,
+	})
+}

@@ -13,4 +13,6 @@ func StockRoutes(app *fiber.App) {
 	app.Get("/stocks/warehouse/:warehouse_id", controller.GetStockByWarehouseID)
 	app.Get("/stocks/warehouse/:warehouse_id/product/:product_id", controller.GetStockByWarehouseIDProductID)
 	app.Post("/stocks", controller.CreateStock)
+	app.Put("/stocks/:id", controller.UpdateStock)
+	app.Put("/stocks/warehouse/:warehouse_id/product/:product_id", controller.UpdateStockByWarehouseIDProductID)
 }

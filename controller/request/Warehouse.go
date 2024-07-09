@@ -87,3 +87,46 @@ func CreateWarehouse(ctx *fiber.Ctx) error {
 		"warehouse": warehouse,
 	})
 }
+
+func UpdateWarehouse(ctx *fiber.Ctx) error {
+	requestWarehouse := new(entity.WarehouseResponse)
+	warehouse := new(entity.Warehouse)
+
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "id", "warehouse")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&warehouse, warehouseID)
+	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := ctx.BodyParser(requestWarehouse); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.WarehouseUpdateValidation(requestWarehouse, warehouse); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Save(&warehouse).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message":   "updated successfully",
+		"warehouse": warehouse,
+	})
+}

@@ -87,3 +87,46 @@ func CreateCategory(ctx *fiber.Ctx) error {
 		"category": category,
 	})
 }
+
+func UpdateCategory(ctx *fiber.Ctx) error {
+	requestCategory := new(entity.CategoryResponse)
+	category := new(entity.Category)
+
+	categoryID, err := validation.ParseAndIDValidation(ctx, "id", "category")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&category, categoryID)
+	if err = validation.EntityByIDValidation(result, "category"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := ctx.BodyParser(requestCategory); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.CategoryUpdateValidation(requestCategory, category); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Save(&category).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message":  "updated successfully",
+		"category": category,
+	})
+}

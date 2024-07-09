@@ -135,3 +135,96 @@ func CreateStock(ctx *fiber.Ctx) error {
 		"stock":   stock,
 	})
 }
+
+func UpdateStock(ctx *fiber.Ctx) error {
+	requestStock := new(entity.StockResponse)
+	stock := new(entity.Stock)
+
+	stockID, err := validation.ParseAndIDValidation(ctx, "id", "stock")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&stock, stockID)
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := ctx.BodyParser(requestStock); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.StockUpdateValidation(requestStock, stock); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Save(&stock).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "updated successfully",
+		"stock":   stock,
+	})
+}
+
+func UpdateStockByWarehouseIDProductID(ctx *fiber.Ctx) error {
+	requestStock := new(entity.StockResponse)
+	stock := new(entity.Stock)
+
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "warehouse_id", "warehouse")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	productID, err := validation.ParseAndIDValidation(ctx, "product_id", "product")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.Where("warehouse_id =? AND product_id=?", warehouseID, productID).First(&stock)
+	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := ctx.BodyParser(requestStock); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if err := validation.StockUpdateValidation(requestStock, stock); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Save(&stock).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "updated successfully",
+		"stock":   stock,
+	})
+}

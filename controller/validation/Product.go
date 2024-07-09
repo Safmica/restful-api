@@ -52,3 +52,57 @@ func ProductValidation(product *entity.Product) error {
 
 	return nil
 }
+
+func ProductUpdateValidation(requestProduct *entity.ProductResponse, Product *entity.Product) error {
+	var count int64
+
+	if requestProduct.ID != 0 {
+		return errors.New("id is not allowed to be input")
+	}
+
+	if requestProduct.Name != "" && requestProduct.CategoryID > 0 {
+		count = 0
+		database.DB.Model(&entity.Product{}).Where("name = ? AND category_id = ?", requestProduct.Name, requestProduct.CategoryID).Count(&count)
+		if count > 0 {
+			return errors.New("product with the same name and category_id already exists")
+		}
+		Product.Name = requestProduct.Name
+		Product.CategoryID = requestProduct.CategoryID
+	} else {
+		if requestProduct.Name != "" {
+			count = 0
+			if err := database.DB.Model(&entity.Product{}).
+				Where("name = ? AND category_id = ?", requestProduct.Name, Product.CategoryID).
+				Count(&count).Error; err != nil {
+				return err
+			}
+			if count > 0 {
+				return errors.New("product with the same name and category_id  already exists")
+			}
+			Product.Name = requestProduct.Name
+		}
+
+		if requestProduct.CategoryID > 0 {
+			count = 0
+			if err := database.DB.Model(&entity.Product{}).
+				Where("name = ? AND CategoryID  = ?", Product.Name, requestProduct.CategoryID).
+				Count(&count).Error; err != nil {
+				return err
+			}
+			if count > 0 {
+				return errors.New("product with the same name and category_id  already exists")
+			}
+			Product.CategoryID = requestProduct.CategoryID
+		}
+	}
+
+	if requestProduct.Description != "" {
+		Product.Description = requestProduct.Description
+	}
+
+	if requestProduct.Price > 0 {
+		Product.Price = requestProduct.Price
+	}
+
+	return nil
+}

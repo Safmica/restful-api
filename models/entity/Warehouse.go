@@ -21,6 +21,7 @@ type WarehouseResponse struct {
 	ID       uint   `json:"-" gorm:"primaryKey"`
 	Name     string `json:"name,omitempty"`
 	Location string `json:"location,omitempty"`
+	Capacity int    `json:"capacity,omitempty"`
 }
 
 /*

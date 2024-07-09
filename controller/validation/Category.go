@@ -29,3 +29,26 @@ func CategoryValidation(category *entity.Category) error {
 
 	return nil
 }
+
+func CategoryUpdateValidation(requestCategory *entity.CategoryResponse, category *entity.Category) error {
+	var existingCategory entity.Category
+
+	if requestCategory.ID != 0 {
+		return errors.New("id is not allowed to be input")
+	}
+
+	if requestCategory.Name != "" {
+		if err := database.DB.Where("name =?", requestCategory.Name).First(&existingCategory).Error; err == nil {
+			if existingCategory.ID != 0 {
+				return errors.New("category already exists")
+			}
+		}
+		category.Name = requestCategory.Name
+	}
+
+	if requestCategory.Description != "" {
+		category.Description = requestCategory.Description
+	}
+
+	return nil
+}
