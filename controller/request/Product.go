@@ -158,3 +158,33 @@ func UpdateProduct(ctx *fiber.Ctx) error {
 		"product": product,
 	})
 }
+
+func DeleteProduct(ctx *fiber.Ctx) error {
+	product := new(entity.Product)
+
+	productID, err := validation.ParseAndIDValidation(ctx, "id", "product")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&product, productID)
+	if err = validation.EntityByIDValidation(result, "product"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Delete(&product).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "delete successfully",
+		"product": product,
+	})
+}

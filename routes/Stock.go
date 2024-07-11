@@ -15,4 +15,6 @@ func StockRoutes(app *fiber.App) {
 	app.Post("/stocks", controller.CreateStock)
 	app.Put("/stocks/:id", controller.UpdateStock)
 	app.Put("/stocks/warehouse/:warehouse_id/product/:product_id", controller.UpdateStockByWarehouseIDProductID)
+	app.Delete("/stocks/:id", controller.DeleteStock)
+	app.Delete("/stocks/warehouse/:warehouse_id/product/:product_id", controller.DeleteStockByWarehouseIDProductID)
 }

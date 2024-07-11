@@ -12,4 +12,5 @@ func CategoryRoutes(app *fiber.App) {
 	app.Get("/categories/product/:product_id", controller.GetCategoryByProductID)
 	app.Post("/categories", controller.CreateCategory)
 	app.Put("/categories/:id", controller.UpdateCategory)
+	app.Delete("/categories/:id", controller.DeleteCategory)
 }

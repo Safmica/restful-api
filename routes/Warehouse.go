@@ -12,4 +12,5 @@ func WarehouseRoutes(app *fiber.App) {
 	app.Get("/warehouses/product/:product_id", controller.GetWarehouseByProductID)
 	app.Post("/warehouses", controller.CreateWarehouse)
 	app.Put("/warehouses/:id", controller.UpdateWarehouse)
+	app.Delete("/warehouses/:id", controller.DeleteWarehouse)
 }

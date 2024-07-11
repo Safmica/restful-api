@@ -130,3 +130,33 @@ func UpdateWarehouse(ctx *fiber.Ctx) error {
 		"warehouse": warehouse,
 	})
 }
+
+func DeleteWarehouse(ctx *fiber.Ctx) error {
+	warehouse := new(entity.Warehouse)
+
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "id", "warehouse")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&warehouse, warehouseID)
+	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Debug().Delete(&warehouse).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message":   "delete successfully",
+		"warehouse": warehouse,
+	})
+}

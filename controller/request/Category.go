@@ -130,3 +130,33 @@ func UpdateCategory(ctx *fiber.Ctx) error {
 		"category": category,
 	})
 }
+
+func DeleteCategory(ctx *fiber.Ctx) error {
+	category := new(entity.Category)
+
+	categoryID, err := validation.ParseAndIDValidation(ctx, "id", "category")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	result := database.DB.First(&category, categoryID)
+	if err = validation.EntityByIDValidation(result, "category"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := database.DB.Delete(&category).Error
+	if errUpdate != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errUpdate.Error(),
+		})
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message":  "delete successfully",
+		"category": category,
+	})
+}
