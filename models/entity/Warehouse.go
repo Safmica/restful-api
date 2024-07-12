@@ -24,19 +24,6 @@ type WarehouseResponse struct {
 	Capacity int    `json:"capacity,omitempty"`
 }
 
-/*
-	type WarehouseResponseProduct struct {
-		ID       uint    `json:"id" gorm:"primaryKey"`
-		Name     string  `json:"name"`
-		Location string  `json:"location"`
-		Capacity int     `json:"capacity"`
-		Stocks   []Stock `json:"stocks"`
-	}
-*/
 func (WarehouseResponse) TableName() string {
 	return "warehouses"
 }
-
-/*func (WarehouseResponseProduct) TableName() string {
-	return "warehouses"
-}*/

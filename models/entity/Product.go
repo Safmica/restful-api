@@ -28,14 +28,16 @@ type ProductResponse struct {
 	Price       float64          `json:"price,omitempty"`
 	CategoryID  uint             `json:"category_id,omitempty"`
 	Category    CategoryResponse `json:"category,omitempty"`
+	DeletedAt   gorm.DeletedAt   `json:"-"`
 }
 
 type ProductResponseCategory struct {
-	ID          uint    `json:"-" gorm:"primaryKey"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	CategoryID  uint    `json:"-"`
+	ID          uint           `json:"-" gorm:"primaryKey"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       float64        `json:"price"`
+	CategoryID  uint           `json:"-"`
+	DeletedAt   gorm.DeletedAt `json:"-"`
 }
 
 func (ProductResponse) TableName() string {

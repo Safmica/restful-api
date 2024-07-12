@@ -15,5 +15,6 @@ func main() {
 	routes.ProductRoutes(app)
 	routes.CategoryRoutes(app)
 	routes.StockRoutes(app)
+	routes.UserRoutes(app)
 	app.Listen(":8080")
 }

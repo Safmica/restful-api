@@ -24,6 +24,7 @@ type StockResponse struct {
 	ProductID   uint            `json:"-"`
 	Product     ProductResponse `json:"product" gorm:"foreignKey:ProductID"`
 	Quantity    int             `json:"quantity"`
+	DeletedAt   gorm.DeletedAt  `json:"-"`
 }
 
 func (StockResponse) TableName() string {

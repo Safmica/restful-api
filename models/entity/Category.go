@@ -17,9 +17,10 @@ type Category struct {
 }
 
 type CategoryResponse struct {
-	ID          uint   `json:"-"`
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+	ID          uint           `json:"-"`
+	Name        string         `json:"name,omitempty"`
+	Description string         `json:"description,omitempty"`
+	DeletedAt   gorm.DeletedAt `json:"-"`
 }
 
 func (CategoryResponse) TableName() string {
