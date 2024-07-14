@@ -36,10 +36,21 @@ type UserUpdateResponse struct {
 	DeletedAt   gorm.DeletedAt `json:"-"`
 }
 
+type UserLogin struct {
+	ID        uint           `json:"-" gorm:"primaryKey"`
+	Email     string         `json:"email" gorm:"primaryKey" validate:"required"`
+	Password  string         `json:"password" validate:"required"`
+	DeletedAt gorm.DeletedAt `json:"-"`
+}
+
 func (UserResponse) TableName() string {
 	return "users"
 }
 
 func (UserUpdateResponse) TableName() string {
+	return "users"
+}
+
+func (UserLogin) TableName() string {
 	return "users"
 }

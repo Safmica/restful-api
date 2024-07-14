@@ -2,14 +2,17 @@ package routes
 
 import (
 	controller "GDSC-PROJECT/controller/request"
+	"GDSC-PROJECT/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func UserRoutes(app *fiber.App) {
-	app.Get("/users", controller.GetAllUser)
-	app.Get("/users/:id", controller.GetUserByID)
-	app.Post("/users", controller.CreateUser)
-	app.Put("/users/:id", controller.UpdateUser)
-	app.Delete("/users/:id", controller.DeleteUser)
+	app.Get("/users", middleware.Auth, controller.GetAllUser)
+	app.Get("/users/:id", middleware.Auth, controller.GetUserByID)
+	app.Post("/users/login", controller.UserLogin)
+	app.Post("users/logout", middleware.Auth, controller.UserLogout)
+	app.Post("/users", middleware.Auth, controller.CreateUser)
+	app.Put("/users/:id", middleware.Auth, controller.UpdateUser)
+	app.Delete("/users/:id", middleware.Auth, controller.DeleteUser)
 }

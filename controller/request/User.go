@@ -2,6 +2,7 @@ package controller
 
 import (
 	"GDSC-PROJECT/controller/validation"
+	"GDSC-PROJECT/cookies"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
 
@@ -41,6 +42,36 @@ func GetUserByID(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"users": user,
+	})
+}
+
+func UserLogin(ctx *fiber.Ctx) error {
+	user := new(entity.UserLogin)
+
+	if err := ctx.BodyParser(user); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	token, err := validation.UserLoginValidation(user)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	cookies.SetJwtCookie(ctx, token)
+
+	return ctx.JSON(fiber.Map{
+		"message": "login successful",
+	})
+}
+
+func UserLogout(ctx *fiber.Ctx) error {
+	cookies.ClearJwtCookie(ctx)
+	return ctx.JSON(fiber.Map{
+		"message": "logout successful",
 	})
 }
 
