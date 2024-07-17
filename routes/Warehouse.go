@@ -10,6 +10,7 @@ import (
 func WarehouseRoutes(app *fiber.App) {
 	app.Get("/warehouses", controller.GetAllWarehouse)
 	app.Get("/warehouses/:id", controller.GetWarehouseByID)
+	app.Get("/warehouses-report/:id", controller.GetWarehouseReport)
 	app.Get("/warehouses/product/:product_id", controller.GetWarehouseByProductID)
 	app.Post("/warehouses", middleware.Auth, controller.CreateWarehouse)
 	app.Put("/warehouses/:id", middleware.Auth, controller.UpdateWarehouse)

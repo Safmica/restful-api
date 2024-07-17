@@ -4,8 +4,12 @@ import (
 	"GDSC-PROJECT/controller/validation"
 	"GDSC-PROJECT/database"
 	"GDSC-PROJECT/models/entity"
+	"bytes"
+	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jung-kurt/gofpdf"
 )
 
 func GetAllWarehouse(ctx *fiber.Ctx) error {
@@ -159,4 +163,70 @@ func DeleteWarehouse(ctx *fiber.Ctx) error {
 		"message":   "delete successfully",
 		"warehouse": warehouse,
 	})
+}
+
+func GetWarehouseReport(ctx *fiber.Ctx) error {
+
+	warehouseID, err := validation.ParseAndIDValidation(ctx, "id", "warehouse")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	var warehouse entity.Warehouse
+	result := database.DB.Preload("Stocks.Product.Category").First(&warehouse, warehouseID)
+	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 12)
+
+	pdf.MultiCell(0, 12, "WAREHOUSE REPORT", "", "C", false)
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	info := map[string]string{
+		"Warehouse Name": warehouse.Name,
+		"Warehouse ID":   strconv.FormatUint(uint64(warehouse.ID), 10),
+		"Location":       warehouse.Location,
+		"Capacity":       strconv.FormatUint(uint64(warehouse.Capacity), 10),
+	}
+
+	for key, value := range info {
+		pdf.CellFormat(40, 10, key, "", 0, "L", false, 0, "")
+		pdf.CellFormat(0, 10, fmt.Sprintf(": %s", value), "", 1, "L", false, 0, "")
+	}
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.CellFormat(40, 10, "Stock ID", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(40, 10, "Product Name", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(40, 10, "Category", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(40, 10, "Quantity", "1", 0, "C", false, 0, "")
+	pdf.Ln(-1)
+
+	pdf.SetFont("Arial", "", 12)
+	for _, stock := range warehouse.Stocks {
+		pdf.CellFormat(40, 10, fmt.Sprintf("%d", stock.ID), "1", 0, "", false, 0, "")
+		pdf.CellFormat(40, 10, stock.Product.Name, "1", 0, "", false, 0, "")
+		pdf.CellFormat(40, 10, stock.Product.Category.Name, "1", 0, "", false, 0, "")
+		pdf.CellFormat(40, 10, fmt.Sprintf("%d", stock.Quantity), "1", 0, "", false, 0, "")
+		pdf.Ln(-1)
+	}
+
+	var buf bytes.Buffer
+	pdfError := pdf.Output(&buf)
+	if pdfError != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": pdfError.Error(),
+		})
+	}
+
+	ctx.Set("Content-Type", "application/pdf")
+	ctx.Set("Content-Disposition", "attachment; filename=warehouse_report.pdf")
+	return ctx.Send(buf.Bytes())
 }
