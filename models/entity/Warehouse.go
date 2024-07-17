@@ -18,12 +18,23 @@ type Warehouse struct {
 }
 
 type WarehouseResponse struct {
-	ID       uint   `json:"id" gorm:"primaryKey"`
+	ID       uint   `json:"id,omitempty" gorm:"primaryKey"`
 	Name     string `json:"name,omitempty"`
 	Location string `json:"location,omitempty"`
 	Capacity int    `json:"capacity,omitempty"`
 }
 
 func (WarehouseResponse) TableName() string {
+	return "warehouses"
+}
+
+type WarehouseResponseStock struct {
+	ID       uint   `json:"-" gorm:"primaryKey"`
+	Name     string `json:"name,omitempty"`
+	Location string `json:"location,omitempty"`
+	Capacity int    `json:"capacity,omitempty"`
+}
+
+func (WarehouseResponseStock) TableName() string {
 	return "warehouses"
 }
