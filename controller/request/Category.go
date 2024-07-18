@@ -34,7 +34,7 @@ func GetCategoryByID(ctx *fiber.Ctx) error {
 	var category entity.Category
 	result := database.DB.Preload("Products").First(&category, categoryID)
 	if err = validation.EntityByIDValidation(result, "category"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -55,7 +55,7 @@ func GetCategoryByProductID(ctx *fiber.Ctx) error {
 	var category entity.CategoryResponse
 	result := database.DB.Debug().Joins("JOIN products ON categories.id = products.category_id").Where("products.id = ?", productID).First(&category)
 	if err = validation.EntityByIDValidation(result, "category"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -101,7 +101,7 @@ func UpdateCategory(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&category, categoryID)
 	if err = validation.EntityByIDValidation(result, "category"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -143,7 +143,7 @@ func DeleteCategory(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&category, categoryID)
 	if err = validation.EntityByIDValidation(result, "category"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}

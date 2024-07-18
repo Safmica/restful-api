@@ -38,7 +38,7 @@ func GetWarehouseByID(ctx *fiber.Ctx) error {
 	var warehouse entity.Warehouse
 	result := database.DB.Preload("Stocks").Preload("Stocks.Product").Preload("Stocks.Product.Category").First(&warehouse, warehouseID)
 	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -59,7 +59,7 @@ func GetWarehouseByProductID(ctx *fiber.Ctx) error {
 	var warehouses []entity.Warehouse
 	result := database.DB.Preload("Stocks").Preload("Stocks.Product").Preload("Stocks.Product.Category").Joins("JOIN product_warehouses ON warehouses.id = product_warehouses.warehouse_id").Where("product_id = ?", productID).Find(&warehouses)
 	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -105,7 +105,7 @@ func UpdateWarehouse(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&warehouse, warehouseID)
 	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -147,7 +147,7 @@ func DeleteWarehouse(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&warehouse, warehouseID)
 	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -177,7 +177,7 @@ func GetWarehouseReport(ctx *fiber.Ctx) error {
 	var warehouse entity.Warehouse
 	result := database.DB.Preload("Stocks.Product.Category").First(&warehouse, warehouseID)
 	if err = validation.EntityByIDValidation(result, "warehouse"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}

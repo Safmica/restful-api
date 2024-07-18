@@ -34,7 +34,7 @@ func GetProductByID(ctx *fiber.Ctx) error {
 	var product entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").First(&product, productID)
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -55,7 +55,7 @@ func GetProductByCategoryID(ctx *fiber.Ctx) error {
 	var products []entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").Where("category_id = ?", categoryID).Find(&products)
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -76,7 +76,7 @@ func GetProductByWarehouseID(ctx *fiber.Ctx) error {
 	var products []entity.Product
 	result := database.DB.Preload("Warehouses").Preload("Category").Joins("JOIN product_warehouses ON products.id = product_warehouses.product_id").Where("warehouse_id = ?", warehouseID).Find(&products)
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -129,7 +129,7 @@ func UpdateProduct(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&product, productID)
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -171,7 +171,7 @@ func DeleteProduct(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&product, productID)
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}

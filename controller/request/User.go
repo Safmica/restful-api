@@ -35,7 +35,7 @@ func GetUserByID(ctx *fiber.Ctx) error {
 	var user entity.UserResponse
 	result := database.DB.First(&user, userID)
 	if err = validation.EntityByIDValidation(result, "user"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -111,7 +111,7 @@ func UpdateUser(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&user, userID)
 	if err = validation.EntityByIDValidation(result, "user"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -153,7 +153,7 @@ func DeleteUser(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&user, userID)
 	if err = validation.EntityByIDValidation(result, "user"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}

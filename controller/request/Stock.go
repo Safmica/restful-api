@@ -34,7 +34,7 @@ func GetStockByID(ctx *fiber.Ctx) error {
 	var stock entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").First(&stock, stockID)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -55,7 +55,7 @@ func GetStockByProductID(ctx *fiber.Ctx) error {
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("product_id = ?", productID).Find(&stocks)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -75,7 +75,7 @@ func GetStockByWarehouseID(ctx *fiber.Ctx) error {
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("warehouse_id = ?", warehouseID).Find(&stocks)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -103,7 +103,7 @@ func GetStockByWarehouseIDProductID(ctx *fiber.Ctx) error {
 	var stocks []entity.Stock
 	result := database.DB.Preload("Product").Preload("Product.Category").Preload("Warehouse").Where("warehouse_id = ? AND product_id = ?", warehouseID, productID).Find(&stocks)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -149,7 +149,7 @@ func UpdateStock(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&stock, stockID)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -199,7 +199,7 @@ func UpdateStockByWarehouseIDProductID(ctx *fiber.Ctx) error {
 
 	result := database.DB.Where("warehouse_id =? AND product_id=?", warehouseID, productID).First(&stock)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -241,7 +241,7 @@ func DeleteStock(ctx *fiber.Ctx) error {
 
 	result := database.DB.First(&stock, stockID)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -278,7 +278,7 @@ func DeleteStockByWarehouseIDProductID(ctx *fiber.Ctx) error {
 
 	result := database.DB.Where("warehouse_id =? AND product_id=?", warehouseID, productID).First(&stock)
 	if err = validation.EntityByIDValidation(result, "stock"); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
