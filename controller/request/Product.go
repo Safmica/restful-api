@@ -60,6 +60,12 @@ func GetProductByCategoryID(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if len(products) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "product not found",
+		})
+	}
+
 	return ctx.JSON(fiber.Map{
 		"products": products,
 	})
@@ -78,6 +84,12 @@ func GetProductByWarehouseID(ctx *fiber.Ctx) error {
 	if err = validation.EntityByIDValidation(result, "product"); err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
+		})
+	}
+
+	if len(products) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "product not found",
 		})
 	}
 

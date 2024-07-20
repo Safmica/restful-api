@@ -64,6 +64,12 @@ func GetWarehouseByProductID(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if len(warehouses) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "warehouse not found",
+		})
+	}
+
 	return ctx.JSON(fiber.Map{
 		"warehouses": warehouses,
 	})
